@@ -95,6 +95,7 @@ if report_file and statement_files:
     col1, col2 = st.columns(2)
     show_invoice = col1.button("📄 ანგარიშფაქტურები")
     show_statement = col2.button("🏦 ჩარიცხვები")
+    
 
     if not show_invoice and not show_statement:
         st.info("აირჩიეთ მოქმედება ზემოთ მოცემული ღილაკებიდან ⬆️")
