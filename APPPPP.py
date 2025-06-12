@@ -1,11 +1,10 @@
 
 import streamlit as st
 import pandas as pd
-import io
 import re
 
 st.set_page_config(layout="wide")
-st.title("💵 ჩარიცხვების დეტალური ანალიზი")
+st.title("💵 ჩარიცხვების ანალიზი")
 
 if 'selected_missing_company' not in st.session_state:
     st.session_state['selected_missing_company'] = None
@@ -14,16 +13,24 @@ report_file = st.file_uploader("ატვირთე ანგარიშფ�
 statement_files = st.file_uploader("ატვირთე საბანკო ამონაწერის ფაილები (statement.xlsx)", type=["xlsx"], accept_multiple_files=True)
 
 if report_file and statement_files:
-    purchases_df = pd.read_excel(report_file, sheet_name='Grid')
+    try:
+        purchases_df = pd.read_excel(report_file, sheet_name='Grid')
+    except Exception as e:
+        st.error(f"Error reading report file: {str(e)}")
+        purchases_df = pd.DataFrame()
+
     bank_dfs = []
     for statement_file in statement_files:
-        df = pd.read_excel(statement_file)
-        df['P'] = df.iloc[:, 15].astype(str).str.strip()
-        df['Name'] = df.iloc[:, 14].astype(str).str.strip()
-        df['Amount'] = pd.to_numeric(df.iloc[:, 3], errors='coerce').fillna(0)
-        bank_dfs.append(df)
-    bank_df = pd.concat(bank_dfs, ignore_index=True) if bank_dfs else pd.DataFrame()
+        try:
+            df = pd.read_excel(statement_file)
+            df['P'] = df.iloc[:, 15].astype(str).str.strip()
+            df['Name'] = df.iloc[:, 14].astype(str).str.strip()
+            df['Amount'] = pd.to_numeric(df.iloc[:, 3], errors='coerce').fillna(0)
+            bank_dfs.append(df)
+        except Exception as e:
+            st.error(f"Error reading statement file {statement_file.name}: {str(e)}")
 
+    bank_df = pd.concat(bank_dfs, ignore_index=True) if bank_dfs else pd.DataFrame()
     purchases_df['საიდენტიფიკაციო კოდი'] = purchases_df['გამყიდველი'].apply(lambda x: ''.join(re.findall(r'\d', str(x)))[:11])
 
     if st.session_state['selected_missing_company'] is None:
@@ -50,18 +57,8 @@ if report_file and statement_files:
                               str(item[1]) == search_query.strip() or 
                               str(item[0]).lower().find(search_query.lower().strip()) != -1]
 
-            sort_reverse = st.session_state['sort_order_missing'] == "კლებადობით"
+            sort_reverse = sort_order == "კლებადობით"
             missing_data.sort(key=lambda x: x[2], reverse=sort_reverse)
-
-            st.markdown("""
-            <div class='summary-header'>
-                <div style='flex: 2;'>დასახელება</div>
-                <div style='flex: 2;'>საიდენტიფიკაციო კოდი</div>
-                <div style='flex: 1.5;'>ჩარიცხული თანხა</div>
-                <div style='flex: 1.5;'>ანგარიშფაქტურის თანხა</div>
-                <div style='flex: 1.5;'>სხვაობა</div>
-            </div>
-            """, unsafe_allow_html=True)
 
             for item in missing_data:
                 col1, col2, col3, col4, col5 = st.columns([2, 2, 1.5, 1.5, 1.5])
