@@ -319,9 +319,8 @@ if report_file and statement_files:
     # Detail view for selected missing company
     if 'selected_missing_company' in st.session_state:
     if st.session_state['selected_missing_company'] == "show_all":
-    # ყველა ჩარიცხვა გამოჩნდეს
-    st.session_state.pop('selected_missing_company')
-    st.experimental_rerun()
+    st.session_state.pop('selected_missing_company')  # ამოიღე session-ში შენახული მონაცემი
+    st.experimental_rerun()  # ხელახლა გაეშვას აპი ცვლილების ასახვად
         selected_id = st.session_state['selected_missing_company']
         st.subheader(f"ჩარიცხვების ცხრილი - {selected_id}")
         matching_transactions = bank_df[bank_df['P'] == str(selected_id)]
