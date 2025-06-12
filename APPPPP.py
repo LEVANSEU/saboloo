@@ -77,7 +77,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("Excel გენერატორი")
+st.title("📋 კომპანიების ჩამონათვალი")
 
 report_file = st.file_uploader("ატვირთე ანგარიშფაქტურების ფაილი (report.xlsx)", type=["xlsx"])
 statement_files = st.file_uploader("ატვირთე საბანკო ამონაწერის ფაილები (statement.xlsx)", type=["xlsx"], accept_multiple_files=True)
@@ -102,17 +102,27 @@ if report_file and statement_files:
     purchases_df['საიდენტიფიკაციო კოდი'] = purchases_df['გამყიდველი'].apply(lambda x: ''.join(re.findall(r'\d', str(x)))[:11])
 
     if st.session_state['selected_missing_company'] is None:
-        st.subheader("📋 კომპანიები ანგარიშფაქტურის სიაში არ არიან")
+        st.subheader("💵 კომპანიები ანგარიშფაქტურის სიაში არ არიან")
+        search_query = st.text_input("🔎 ჩაწერე საიდენტიფიკაციო კოდი ან დასახელება")
+        sort_order = st.radio("📊 სორტირების მიმართულება", ["ზრდადობით", "კლებადობით"], horizontal=True)
 
         bank_company_ids = bank_df['P'].unique()
         invoice_company_ids = purchases_df['საიდენტიფიკაციო კოდი'].unique()
         missing_ids = [cid for cid in bank_company_ids if cid not in invoice_company_ids]
 
+        data = []
         for cid in missing_ids:
             rows = bank_df[bank_df['P'] == cid]
             name = rows['Name'].iloc[0] if not rows.empty else "-"
             total = rows['Amount'].sum()
+            data.append((name, cid, total))
 
+        if search_query:
+            data = [item for item in data if search_query.lower() in item[0].lower() or search_query in item[1]]
+
+        data.sort(key=lambda x: x[2], reverse=(sort_order == "კლებადობით"))
+
+        for name, cid, total in data:
             col1, col2, col3 = st.columns([3, 3, 2])
             with col1:
                 st.write(name)
