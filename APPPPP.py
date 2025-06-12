@@ -69,10 +69,8 @@ st.markdown("""
             color: #222 !important;
             background-color: white !important;
         }
-        .stTable td:nth-child(n+3), .stTable th:nth-child(n+3) {
+        .stTable td:nth-child(n+1) {
             text-align: right !important;
-            font-variant-numeric: tabular-nums;
-            padding-right: 1rem;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -106,6 +104,14 @@ if report_file and statement_files:
         search_query = st.text_input("🔎 ჩაწერე საიდენტიფიკაციო კოდი ან დასახელება")
         sort_order = st.radio("📊 სორტირების მიმართულება", ["ზრდადობით", "კლებადობით"], horizontal=True)
 
+        st.markdown("""
+        <div class='summary-header'>
+            <div style='flex: 2;'>დასახელება</div>
+            <div style='flex: 2;'>საიდენტიფიკაციო კოდი</div>
+            <div style='flex: 1.5;'>ჩარიცხული თანხა</div>
+        </div>
+        """, unsafe_allow_html=True)
+
         bank_company_ids = bank_df['P'].unique()
         invoice_company_ids = purchases_df['საიდენტიფიკაციო კოდი'].unique()
         missing_ids = [cid for cid in bank_company_ids if cid not in invoice_company_ids]
@@ -123,20 +129,20 @@ if report_file and statement_files:
         data.sort(key=lambda x: x[2], reverse=(sort_order == "კლებადობით"))
 
         for name, cid, total in data:
-            col1, col2, col3 = st.columns([3, 3, 2])
+            col1, col2, col3 = st.columns([2, 2, 1.5])
             with col1:
-                st.write(name)
+                st.markdown(name)
             with col2:
                 if st.button(str(cid), key=f"go_{cid}"):
                     st.session_state['selected_missing_company'] = cid
                     st.experimental_rerun()
             with col3:
-                st.write(f"{total:,.2f}")
+                st.markdown(f"<div class='number-cell'>{total:,.2f}</div>", unsafe_allow_html=True)
     else:
         cid = st.session_state['selected_missing_company']
         st.subheader(f"📌 ჩარიცხვების დეტალური სია: {cid}")
         company_data = bank_df[bank_df['P'] == cid]
-        st.dataframe(company_data, use_container_width=True)
+        st.dataframe(company_data.style.set_properties(**{'text-align': 'right'}), use_container_width=True)
         if st.button("⬅️ დაბრუნება"):
             st.session_state['selected_missing_company'] = None
             st.experimental_rerun()
