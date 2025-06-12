@@ -26,7 +26,7 @@ st.markdown("""
             display: flex;
             font-weight: bold;
             margin-top: 1em;
-            padding-bottom: 0.5rem;
+            padding: 0.5rem;
             border-bottom: 2px solid #999;
             text-align: center;
             background-color: #f0f0f0;
@@ -36,6 +36,11 @@ st.markdown("""
         .summary-header div {
             flex: 1;
             padding: 0.5rem;
+            background-color: #f0f0f0; /* Match the header background */
+            border-right: 1px solid #ccc; /* Add separation between columns */
+        }
+        .summary-header div:last-child {
+            border-right: none; /* Remove border from the last column */
         }
     </style>
 """, unsafe_allow_html=True)
