@@ -96,9 +96,8 @@ if report_file and statement_files:
     if selected_view == 'None':
         st.stop()
     try:
-        st.write(f"Uploaded report file: {report_file.name}")
         purchases_df = pd.read_excel(report_file, sheet_name='Grid')
-        st.write("purchases_df head:", purchases_df.head())
+        
     except Exception as e:
         st.error(f"Error reading report file: {str(e)}")
         purchases_df = pd.DataFrame()
@@ -108,9 +107,7 @@ if report_file and statement_files:
     if statement_files:
         for statement_file in statement_files:
             try:
-                st.write(f"Processing statement file: {statement_file.name}")
                 df = pd.read_excel(statement_file)
-                st.write(f"Raw df head for {statement_file.name}:", df.head())
                 df['P'] = df.iloc[:, 15].astype(str).str.strip()  # Identification code
                 df['Name'] = df.iloc[:, 14].astype(str).str.strip()  # Name from column O
                 df['Amount'] = pd.to_numeric(df.iloc[:, 3], errors='coerce').fillna(0)  # Amount from column D
