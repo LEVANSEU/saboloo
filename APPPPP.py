@@ -161,7 +161,7 @@ if report_file and statement_files:
     wb.save(output)
     output.seek(0)
 
-    if 'selected_company' not in st.session_state:
+    if show_invoice:
         st.subheader("📋 კომპანიების ყჩამონათვალი")  # Note: "ჩ" seems to be a typo, likely meant "ჩამონათვალი"
 
         search_code = st.text_input("🔎 ჩაწერე საიდენტიფიკაციო კოდი:", "")
@@ -318,6 +318,7 @@ if report_file and statement_files:
 
     # Detail view for selected missing company
     if 'selected_missing_company' in st.session_state:
+    if st.session_state['selected_missing_company'] == "show_all":
         selected_id = st.session_state['selected_missing_company']
         st.subheader(f"ჩარიცხვების ცხრილი - {selected_id}")
         matching_transactions = bank_df[bank_df['P'] == str(selected_id)]
