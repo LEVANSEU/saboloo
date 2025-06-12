@@ -121,7 +121,8 @@ if report_file and statement_files:
             rows = bank_df[bank_df['P'] == cid]
             name = rows['Name'].iloc[0] if not rows.empty else "-"
             total = rows['Amount'].sum()
-            data.append((name, cid, total))
+            if total > 0:
+                data.append((name, cid, total))
 
         if search_query:
             data = [item for item in data if search_query.lower() in item[0].lower() or search_query in item[1]]
