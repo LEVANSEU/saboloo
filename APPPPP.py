@@ -6,7 +6,7 @@ import re
 
 st.set_page_config(layout="wide")
 
-# Add custom CSS for style
+# Custom CSS for consistent styling
 st.markdown("""
     <style>
         body, .main, .block-container {
@@ -80,12 +80,14 @@ st.title("📋 კომპანიების ჩამონათვალ�
 report_file = st.file_uploader("ატვირთე ანგარიშფაქტურების ფაილი (report.xlsx)", type=["xlsx"])
 statement_files = st.file_uploader("ატვირთე საბანკო ამონაწერის ფაილები (statement.xlsx)", type=["xlsx"], accept_multiple_files=True)
 
+# ცვლადი კომპანიის დეტალური გვერდისთვის
 if 'selected_missing_company' not in st.session_state:
     st.session_state['selected_missing_company'] = None
 
 if report_file and statement_files:
     purchases_df = pd.read_excel(report_file, sheet_name='Grid')
 
+    # საბანკო ფაილების დამუშავება
     bank_dfs = []
     for file in statement_files:
         df = pd.read_excel(file)
@@ -96,6 +98,7 @@ if report_file and statement_files:
 
     bank_df = pd.concat(bank_dfs, ignore_index=True)
 
+    # გამყიდველის სახელი და კოდი
     purchases_df['დასახელება'] = purchases_df['გამყიდველი'].astype(str).apply(lambda x: re.sub(r'^\(\d+\)\s*', '', x).strip())
     purchases_df['საიდენტიფიკაციო კოდი'] = purchases_df['გამყიდველი'].apply(lambda x: ''.join(re.findall(r'\d', str(x)))[:11])
 
@@ -104,6 +107,7 @@ if report_file and statement_files:
         search_query = st.text_input("🔎 ჩაწერე საიდენტიფიკაციო კოდი ან დასახელება")
         sort_order = st.radio("📊 სორტირების მიმართულება", ["ზრდადობით", "კლებადობით"], horizontal=True)
 
+        # ცხრილის სათაურები
         st.markdown("""
         <div class='summary-header'>
             <div style='flex: 2;'>დასახელება</div>
@@ -112,10 +116,12 @@ if report_file and statement_files:
         </div>
         """, unsafe_allow_html=True)
 
+        # კომპანიების იდენტიფიკაცია
         bank_company_ids = bank_df['P'].unique()
         invoice_company_ids = purchases_df['საიდენტიფიკაციო კოდი'].unique()
         missing_ids = [cid for cid in bank_company_ids if cid not in invoice_company_ids]
 
+        # ჩარიცხვების მომზადება
         data = []
         for cid in missing_ids:
             rows = bank_df[bank_df['P'] == cid]
@@ -124,26 +130,31 @@ if report_file and statement_files:
             if total > 0:
                 data.append((name, cid, total))
 
+        # ძიება
         if search_query:
             data = [item for item in data if search_query.lower() in item[0].lower() or search_query in item[1]]
 
+        # დალაგება
         data.sort(key=lambda x: x[2], reverse=(sort_order == "კლებადობით"))
 
+        # ცხრილის ჩვენება
         for name, cid, total in data:
             col1, col2, col3 = st.columns([2, 2, 1.5])
             with col1:
                 st.markdown(name)
             with col2:
                 if st.button(str(cid), key=f"go_{cid}"):
-                    st.session_state['selected_missing_company'] = cid
-                    st.experimental_rerun()
+                    st.session_state['selected_missing_company'] = cid  # არ ხდება rerun
             with col3:
                 st.markdown(f"<div class='number-cell'>{total:,.2f}</div>", unsafe_allow_html=True)
+
     else:
+        # კონკრეტული კომპანიის ჩარიცხვების დეტალები
         cid = st.session_state['selected_missing_company']
         st.subheader(f"📌 ჩარიცხვების დეტალური სია: {cid}")
         company_data = bank_df[bank_df['P'] == cid]
         st.dataframe(company_data.style.set_properties(**{'text-align': 'right'}), use_container_width=True)
+
+        # დაბრუნება
         if st.button("⬅️ დაბრუნება"):
-            st.session_state['selected_missing_company'] = None
-            st.experimental_rerun()
+            st.session_state['selected_missing_company'] = None  # არ ხდება rerun
