@@ -118,8 +118,7 @@ if report_file and statement_files:
     
     # Combine all bank statement DataFrames
     bank_df = pd.concat(bank_dfs, ignore_index=True) if bank_dfs else pd.DataFrame()
-    st.write("bank_df head:", bank_df.head())
-
+    
     purchases_df['დასახელება'] = purchases_df['გამყიდველი'].astype(str).apply(lambda x: re.sub(r'^\(\d+\)\s*', '', x).strip())
     purchases_df['საიდენტიფიკაციო კოდი'] = purchases_df['გამყიდველი'].apply(lambda x: ''.join(re.findall(r'\d', str(x)))[:11])
 
