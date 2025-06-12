@@ -36,11 +36,11 @@ st.markdown("""
         .summary-header div {
             flex: 1;
             padding: 0.5rem;
-            background-color: #f0f0f0; /* Match the header background */
-            border-right: 1px solid #ccc; /* Add separation between columns */
+            background-color: #f0f0f0;
+            border-right: 1px solid #ccc;
         }
         .summary-header div:last-child {
-            border-right: none; /* Remove border from the last column */
+            border-right: none;
         }
     </style>
 """, unsafe_allow_html=True)
