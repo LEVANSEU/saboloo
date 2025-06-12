@@ -119,75 +119,7 @@ if report_file and statement_files:
                 except Exception as e:
                     st.error(f"Error reading statement file {statement_file.name}: {str(e)}")
                     continue
-                    
-        if tab_choice == "ჩარიცხვები":
-          
-            try:# --- ჩარიცხვები --- 
-# იგივეა რაც "დამატებითი მოქმედება"
 
-# Get unique company IDs from bank_df
-bank_company_ids = bank_df['P'].unique()
-# Get company IDs from purchases_df
-invoice_company_ids = purchases_df['საიდენტიფიკაციო კოდი'].unique()
-# Find companies in bank_df but not in purchases_df
-missing_company_ids = [cid for cid in bank_company_ids if cid not in invoice_company_ids]
-
-if missing_company_ids:
-    st.subheader("კომპანიები ანგარიშფაქტურის სიაში არ არიან")
-    missing_data = []
-    for company_id in missing_company_ids:
-        matching_rows = bank_df[bank_df['P'] == str(company_id)]
-        company_name = matching_rows['Name'].iloc[0] if not matching_rows.empty else "-"
-        total_amount = bank_df[bank_df['P'] == str(company_id)]['Amount'].sum()
-        invoice_amount = 0.00
-        difference = total_amount - invoice_amount
-        missing_data.append([company_name, company_id, total_amount, invoice_amount, difference])
-
-    # Search & Sort
-    if 'sort_order_missing' not in st.session_state:
-        st.session_state['sort_order_missing'] = "კლებადობით"
-    if 'search_query_missing' not in st.session_state:
-        st.session_state['search_query_missing'] = ""
-
-    sort_order_missing = st.radio("სორტირება:", ["ზრდადობით", "კლებადობით"], key="sort_order_missing_ch")
-    search_query_missing = st.text_input("ძებნა (კოდი ან დასახელება):", key="search_query_missing_ch")
-
-    if search_query_missing.strip():
-        missing_data = [item for item in missing_data if 
-                      str(item[1]) == search_query_missing.strip() or 
-                      str(item[0]).lower().find(search_query_missing.lower().strip()) != -1]
-
-    sort_reverse = sort_order_missing == "კლებადობით"
-    missing_data.sort(key=lambda x: x[2], reverse=sort_reverse)
-
-    # Display
-    st.markdown("""
-    <div class='summary-header'>
-        <div style='flex: 2;'>დასახელება</div>
-        <div style='flex: 2;'>საიდენტიფიკაციო კოდი</div>
-        <div style='flex: 1.5;'>ჩარიცხული თანხა</div>
-        <div style='flex: 1.5;'>ანგარიშფაქტურის თანხა</div>
-        <div style='flex: 1.5;'>სხვაობა</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    for item in missing_data:
-        col1, col2, col3, col4, col5 = st.columns([2, 2, 1.5, 1.5, 1.5])
-        with col1:
-            st.write(item[0])
-        with col2:
-            if st.button(str(item[1]), key=f"missing_ch_{item[1]}"):
-                st.session_state['selected_missing_company'] = item[1]
-                st.experimental_rerun()
-        with col3:
-            st.write(f"{item[2]:,.2f}")
-        with col4:
-            st.write(f"{item[3]:,.2f}")
-        with col5:
-            st.write(f"{item[4]:,.2f}")
-else:
-    st.info("ყველა კომპანია ანგარიშფაქტურის სიაში გამოჩნდა.")
-            
         # Combine all bank statement DataFrames
         bank_df = pd.concat(bank_dfs, ignore_index=True) if bank_dfs else pd.DataFrame()
         st.write("bank_df head:", bank_df.head())
