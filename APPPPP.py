@@ -161,7 +161,7 @@ if report_file and statement_files:
 
             search_code = st.text_input("🔎 ჩაწერე საიდენტიფიკაციო კოდი:", "")
             sort_column = st.selectbox("📊 დალაგების ველი", ["ინვოისების ჯამი", "ჩარიცხვა", "სხვაობა"])
-            sort_order = st.radio("⬆️⬇️ დალაგების ტიპი", ["ზრდადობით", "კლებადობით"])
+            sort_order = st.radio(⬆️⬇️ დალაგების ტიპი", ["ზრდადობით", "კლებადობით"])
 
             sort_index = {"ინვოისების ჯამი": 2, "ჩარიცხვა": 3, "სხვაობა": 4}[sort_column]
             reverse = sort_order == "კლებადობით"
