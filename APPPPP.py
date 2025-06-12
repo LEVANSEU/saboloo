@@ -92,6 +92,9 @@ report_file = st.file_uploader("ატვირთე ანგარიშფ�
 statement_files = st.file_uploader("ატვირთე საბანკო ამონაწერის ფაილები (statement.xlsx)", type=["xlsx"], accept_multiple_files=True)
 
 if report_file and statement_files:
+    selected_view = st.radio('აირჩიე სანახავი:', ['None', 'ანგარიშფაქტურები', 'ჩარიცხვები'], index=0)
+    if selected_view == 'None':
+        st.stop()
     try:
         st.write(f"Uploaded report file: {report_file.name}")
         purchases_df = pd.read_excel(report_file, sheet_name='Grid')
