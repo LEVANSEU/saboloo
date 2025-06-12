@@ -57,10 +57,9 @@ if report_file and statement_files:
     wb.save(output)
     output.seek(0)
 
-    # პირდაპირ ვაჩვენოთ ჩარიცხვები
     st.subheader("📋 კომპანიები ანგარიშფაქტურის სიაში არ არიან")
     search_query = st.text_input("🔎 ძებნა (კოდი ან დასახელება):", key="search_query_missing")
-    sort_order = st.radio("სორტირება:", ["ზრდადობით", "კლებადობით"], key="sort_order_missing", horizontal=True)
+    sort_order_missing = st.radio("სორტირება:", ["ზრდადობით", "კლებადობით"], key="sort_order_missing", horizontal=True)
 
     bank_company_ids = bank_df['P'].unique()
     invoice_company_ids = purchases_df['საიდენტიფიკაციო კოდი'].unique()
@@ -81,7 +80,7 @@ if report_file and statement_files:
                           str(item[1]) == search_query.strip() or 
                           str(item[0]).lower().find(search_query.lower().strip()) != -1]
 
-        sort_reverse = sort_order == "კლებადობით"
+        sort_reverse = sort_order_missing == "კლებადობით"
         missing_data.sort(key=lambda x: x[2], reverse=sort_reverse)
 
         st.markdown("""
